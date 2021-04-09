@@ -1,0 +1,19 @@
+{
+  "include": ["src"],
+  "exclude": ["**/*.spec.ts"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["es6"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noEmitOnError": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
+  }
+}
