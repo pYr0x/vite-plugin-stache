@@ -3,6 +3,7 @@ import {parse} from "can-stache-ast";
 // const makeSourceMap = require( "./source-map" );
 import { Plugin, ViteDevServer } from 'vite'
 import process from "process";
+import path from "path";
 
 export interface Options {
   isProduction?: boolean
@@ -63,31 +64,22 @@ export default function stachePlugin(rawOptions: Options = {}): Plugin {
           import 'can-view-import';
           import 'can-stache/src/mustache_core';
           import stacheBindings from 'can-stache-bindings';
+          ${dynamicImportMap.length ? `import importer from 'vite-stache-import-module';`: ``}
 
           ${tagImportMap.map((file, i) => `import * as i_${i} from '${file}';`).join('\n')}
-          ${simpleImports.map((file) => `import '${file}';`)}
+          ${simpleImports.map((file) => `import '${file}';`).join('\n')}
 
           stache.addBindings(stacheBindings);
           var renderer = stache(${intermediate});
-
           ${dynamicImportMap.length ? `
-          window.require = window.require || new Function('return false');
-          (function () {
-            const oldPrototype = window.require.prototype;
-            const oldRequire = window.require;
-            window.require = async function (moduleName) {
-              const dynamicImportMap = Object.assign({}, ${dynamicImportMap.map((file) => {
-                return `import.meta.glob('${file}')`;
-              }).join(",")});
-
-              if (moduleName in dynamicImportMap) {
-                return dynamicImportMap[moduleName]()
+            const dynamicImportMap = Object.assign({}, ${dynamicImportMap.map((file) => {
+              if(!path.extname(file)){
+                file += '.js';
               }
-              return oldRequire.apply(this, arguments);
-            };
-            window.require.prototype = oldPrototype;
-          })();`: ``}
-
+              return `import.meta.glob('${file}')`;
+            }).join(",")});
+            importer(dynamicImportMap);
+          `: ``}
           export default function (scope, options, nodeList) {
             if (!(scope instanceof Scope)) {
               scope = new Scope(scope);
@@ -119,4 +111,44 @@ export default function stachePlugin(rawOptions: Options = {}): Plugin {
       return null;
     }
   }
+}
+
+export const loaderShim = function(): Plugin {
+  return {
+    name: 'vite:stache-import-module', // this name will show up in warnings and errors
+    resolveId ( source ) {
+      if (source === 'vite-stache-import-module') {
+        return source;
+      }
+      return null;
+    },
+    load ( id ) {
+      if (id === 'vite-stache-import-module') {
+        // language=JavaScript
+        return `
+          import viewCallbacks from 'can-view-callbacks';
+          const tag = viewCallbacks.tag;
+
+          // noop static import since we handled it in the vite:stache plugin
+          tag('can-import', function () {});
+
+          export default function (dynamicImportMap) {
+            window.require = window.require || new Function('return false');
+            const oldPrototype = window.require.prototype;
+            const oldRequire = window.require;
+            window.require = async function (moduleName) {
+              if (!(moduleName.match(/[^\\\\\\/]\\.([^.\\\\\\/]+)$/) || [null]).pop()) {
+                moduleName += '.js';
+              }
+              if (moduleName in dynamicImportMap) {
+                return dynamicImportMap[moduleName]()
+              }
+              return oldRequire.apply(this, arguments);
+            };
+            window.require.prototype = oldPrototype;
+          }`;
+      }
+      return null;
+    }
+  };
 }
