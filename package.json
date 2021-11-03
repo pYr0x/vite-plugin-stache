@@ -9,7 +9,14 @@
   },
   "scripts": {
     "dev": "tsc -p . -w --incremental",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "format": "",
+    "lint": "",
+    "prepare": "npm run build",
+    "prepublishOnly": "",
+    "preversion": "",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "author": "Julian Kern",
   "license": "MIT",
@@ -33,6 +40,7 @@
     "can-stache": "^5.1.1",
     "can-view-scope": "^4.13.6",
     "can-view-import": "^5.0.1",
-    "can-stache-bindings": "^5.0.5"
+    "can-stache-bindings": "^5.0.5",
+    "can-import-module": "git://github.com/canjs/can-import-module.git#hook-system"
   }
 }

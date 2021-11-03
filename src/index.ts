@@ -126,27 +126,26 @@ export const loaderShim = function(): Plugin {
       if (id === 'vite-stache-import-module') {
         // language=JavaScript
         return `
+          import {flushLoader, addLoader} from 'can-import-module';
           import viewCallbacks from 'can-view-callbacks';
+
+          flushLoader();
+
           const tag = viewCallbacks.tag;
 
           // noop static import since we handled it in the vite:stache plugin
           tag('can-import', function () {});
 
           export default function (dynamicImportMap) {
-            window.require = window.require || new Function('return false');
-            const oldPrototype = window.require.prototype;
-            const oldRequire = window.require;
-            window.require = async function (moduleName) {
-              if (!(moduleName.match(/[^\\\\\\/]\\.([^.\\\\\\/]+)$/) || [null]).pop()) {
+            addLoader((moduleName) => {
+              if (!(moduleName.match(/[^\\\\\\\/]\\.([^.\\\\\\\/]+)$/) || [null]).pop()) {
                 moduleName += '.js';
               }
               if (moduleName in dynamicImportMap) {
                 return dynamicImportMap[moduleName]()
               }
-              return oldRequire.apply(this, arguments);
-            };
-            window.require.prototype = oldPrototype;
-          }`;
+            });
+          };`
       }
       return null;
     }
