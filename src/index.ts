@@ -13,7 +13,7 @@ export interface ResolvedOptions extends Options {
   devServer?: ViteDevServer
 }
 
-export default function stachePlugin(rawOptions: Options = {}): Plugin {
+const stachePlugin = function (rawOptions: Options = {}): Plugin {
   let options: ResolvedOptions = {
     isProduction: process.env.NODE_ENV === 'production',
     ...rawOptions,
@@ -113,9 +113,22 @@ export default function stachePlugin(rawOptions: Options = {}): Plugin {
   }
 }
 
-export const loaderShim = function(): Plugin {
+const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
+  let options: ResolvedOptions = {
+    isProduction: process.env.NODE_ENV === 'production',
+    ...rawOptions,
+    root: process.cwd()
+  }
+
   return {
     name: 'vite:stache-import-module', // this name will show up in warnings and errors
+    configResolved(config: ResolvedOptions) {
+      options = {
+        ...options,
+        root: config.root,
+        isProduction: config.isProduction
+      }
+    },
     resolveId ( source ) {
       if (source === 'vite-stache-import-module') {
         return source;
@@ -150,4 +163,12 @@ export const loaderShim = function(): Plugin {
       return null;
     }
   };
+}
+
+
+export default function(){
+  return [
+    stacheImportPlugin(),
+    stachePlugin()
+  ]
 }
