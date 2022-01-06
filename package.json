@@ -15,7 +15,7 @@
     "url": "https://github.com/pYr0x/vite-plugin-stache.git"
   },
   "engines": {
-    "node": ">= 10.0.0"
+    "node": ">= 14.18.0"
   },
   "scripts": {
     "dev": "tsc -p . -w --incremental",
@@ -57,5 +57,12 @@
     "vite": "^2.7.10",
     "vite-plugin-stache": "link:",
     "vitest": "0.0.134"
+  },
+  "peerDependencies": {
+    "vite": "^2.7.10",
+    "can-stache": "^5.1.1",
+    "can-stache-bindings": "^5.0.5",
+    "can-view-import": "^5.0.1",
+    "can-view-scope": "^4.13.7"
   }
 }
