@@ -1,4 +1,4 @@
-import {afterAll, beforeAll, describe, expect, test, it, beforeEach, afterEach} from 'vitest'
+import {afterAll, beforeAll, describe, expect, it, beforeEach, afterEach} from 'vitest'
 import { preview } from 'vite'
 import type { PreviewServer } from 'vite'
 import puppeteer from 'puppeteer'
@@ -58,7 +58,7 @@ describe('import', () => {
   let server: PreviewServer
   let browser: Browser
   let page: Page
-  const port = 8082;
+  const port = 8081;
 
   beforeAll(async () => {
     await writeBundle('import');
@@ -102,7 +102,7 @@ describe('inline stache', async () => {
   let server: PreviewServer
   let browser: Browser
   let page: Page
-  const port = 8083;
+  const port = 8081;
 
   beforeAll(async () => {
     await writeBundle('inline-stache');
@@ -143,7 +143,7 @@ describe('stache element', async () => {
   let server: PreviewServer
   let browser: Browser
   let page: Page
-  const port = 8084;
+  const port = 8081;
 
   beforeAll(async () => {
     await writeBundle('stache-element');
