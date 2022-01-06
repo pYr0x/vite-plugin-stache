@@ -27,7 +27,7 @@
     "preversion": "",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
-    "test": "vitest run"
+    "test": "vitest run --reporter=dot --coverage"
   },
   "author": "Julian Kern",
   "license": "MIT",
@@ -39,6 +39,7 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-typescript": "^8.3.0",
     "@types/node": "^17.0.8",
+    "c8": "^7.11.0",
     "can-import-module": "github:canjs/can-import-module#hook-system",
     "can-stache": "^5.1.1",
     "can-stache-bindings": "^5.0.5",

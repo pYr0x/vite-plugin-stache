@@ -1,32 +1,33 @@
-import {afterAll, beforeAll, describe, expect, it, beforeEach, afterEach} from 'vitest'
-import { preview } from 'vite'
-import type { PreviewServer } from 'vite'
+import {afterAll, afterEach, beforeAll, beforeEach, describe, expect, it} from 'vitest'
+import type {PreviewServer} from 'vite'
+import {preview} from 'vite'
+import type {Browser, Page} from 'puppeteer'
 import puppeteer from 'puppeteer'
-import type { Browser, Page } from 'puppeteer'
 import {getDocument, queries} from "pptr-testing-library"
 import path from "path";
 import {deleteMatchedFiles, writeBundle} from "./util";
 
+async function createServer(example: string): Promise<PreviewServer> {
+  return await preview({
+    root: path.resolve(__dirname, '..', 'examples', example),
+    configFile: false,
+    preview: {
+      port: 8081,
+    }
+  });
+}
 
 describe('dynamic import', async () => {
   let server: PreviewServer
   let browser: Browser
   let page: Page
-  const port = 8081
 
   beforeAll(async () => {
     await writeBundle('dynamic-import');
     // delete a file so we can see the loading error
     deleteMatchedFiles(path.resolve(__dirname, '../examples/dynamic-import/dist/assets/'), /bar\..*/);
 
-    server = await preview({
-      root: path.resolve(__dirname, '..', 'examples', 'dynamic-import'),
-      configFile: false,
-      preview: {
-        port,
-      }
-    })
-    server.printUrls()
+    server = await createServer('dynamic-import');
     browser = await puppeteer.launch()
     page = await browser.newPage()
   })
@@ -63,14 +64,7 @@ describe('import', () => {
   beforeAll(async () => {
     await writeBundle('import');
 
-    server = await preview({
-      root: path.resolve(__dirname, '..', 'examples', 'import'),
-      configFile: false,
-      preview: {
-        port,
-      }
-    })
-    server.printUrls()
+    server = await createServer('import');
     browser = await puppeteer.launch()
     page = await browser.newPage()
   })
@@ -107,14 +101,7 @@ describe('inline stache', async () => {
   beforeAll(async () => {
     await writeBundle('inline-stache');
 
-    server = await preview({
-      root: path.resolve(__dirname, '..', 'examples', 'inline-stache'),
-      configFile: false,
-      preview: {
-        port,
-      }
-    })
-    server.printUrls()
+    server = await createServer('inline-stache');
     browser = await puppeteer.launch()
     page = await browser.newPage()
   })
@@ -148,14 +135,7 @@ describe('stache element', async () => {
   beforeAll(async () => {
     await writeBundle('stache-element');
 
-    server = await preview({
-      root: path.resolve(__dirname, '..', 'examples', 'stache-element'),
-      configFile: false,
-      preview: {
-        port,
-      }
-    })
-    server.printUrls()
+    server = await createServer('stache-element');
     browser = await puppeteer.launch()
     page = await browser.newPage()
   })
