@@ -1,0 +1,5 @@
+<can-import from="./import.js"/>
+<can-import from="./upperCase.js" module.upperCase:to="upper"/>
+<can-import from="./foo" module.default:to="world"/>
+<can-import from="./foo" module.default:to="bar"/>
+{{upper("hello")}} {{world}}}

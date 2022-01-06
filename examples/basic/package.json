@@ -1,0 +1,16 @@
+{
+  "name": "basic",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "can-import-module": "git://github.com/canjs/can-import-module.git#hook-system",
+    "can-stache": "^5.1.1",
+    "can-stache-bindings": "^5.0.5",
+    "can-view-scope": "^4.13.6",
+    "vite": "^2.6.14",
+    "vite-plugin-stache": "file:../../"
+  }
+}

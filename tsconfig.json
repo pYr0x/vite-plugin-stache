@@ -1,10 +1,12 @@
 {
-  "include": ["src"],
-  "exclude": ["**/*.spec.ts"],
+  "include": ["src/**/*", "types/**/*"],
+  "exclude": ["**/*.spec.ts", "dist", "node_modules"],
   "compilerOptions": {
+    "declaration": true,
+    "declarationDir": ".",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "lib": ["es6"],
+    "lib": ["dom","es6"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -14,6 +16,7 @@
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "allowJs": false
   }
 }

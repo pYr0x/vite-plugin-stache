@@ -1,0 +1,17 @@
+<can-dynamic-import from="./foo" value:to="scope.vars.foo" />
+<div id="dynamic-import-foo">{{scope.vars.foo.default}}</div>
+
+<can-dynamic-import from="./partial.stache" value:to="scope.vars.partial" />
+{{>scope.vars.partial.default}}
+
+<can-dynamic-import from="./bar.js" isPending:to="scope.vars.tabsWidgetPending"
+                    isRejected:to="scope.vars.tabsWidgetError"
+                    this:to="scope.vars.tabsWidgetPromise">
+{{#if scope.vars.tabsWidgetPending}}
+  Loading...
+{{else}}
+  {{#if scope.vars.tabsWidgetError}}
+    {{scope.vars.tabsWidgetPromise.reason}}
+  {{/if}}
+{{/if}}
+</can-dynamic-import>

@@ -2,8 +2,14 @@
   "name": "vite-plugin-stache",
   "version": "0.0.3",
   "description": "",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "type": "commonjs",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pYr0x/vite-plugin-stache.git"
@@ -20,31 +26,35 @@
     "prepublishOnly": "",
     "preversion": "",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "test": "vitest run"
   },
   "author": "Julian Kern",
   "license": "MIT",
   "dependencies": {
-    "can-stache-ast": "^1.1.0"
+    "can-stache-ast": "^1.1.0",
+    "stache-inline-transformer": "^0.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
-    "tslib": "^2.3.1",
-    "rollup": "^2.59.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-typescript": "^8.3.0",
-    "@rollup/plugin-babel": "^5.3.0",
-    "vite": "^2.6.13",
-    "@rollup/pluginutils": "^4.1.1",
-    "typescript": "^4.4.4",
-    "@types/node": "^16.11.6"
-  },
-  "peerDependencies": {
-    "can-view-callbacks": "^5.0.0",
+    "@types/node": "^17.0.8",
+    "can-import-module": "github:canjs/can-import-module#hook-system",
     "can-stache": "^5.1.1",
-    "can-view-scope": "^4.13.6",
-    "can-view-import": "^5.0.1",
     "can-stache-bindings": "^5.0.5",
-    "can-import-module": "git://github.com/canjs/can-import-module.git#hook-system"
+    "can-stache-element": "^1.2.0",
+    "can-view-import": "^5.0.1",
+    "can-view-scope": "^4.13.7",
+    "eslint": "^8.6.0",
+    "jsdom": "^19.0.0",
+    "pptr-testing-library": "^0.7.0",
+    "prettier": "^2.5.1",
+    "puppeteer": "^13.0.1",
+    "rollup": "^2.63.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.7.10",
+    "vite-plugin-stache": "link:",
+    "vitest": "0.0.134"
   }
 }

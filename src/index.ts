@@ -4,6 +4,8 @@ import {parse} from "can-stache-ast";
 import { Plugin, ViteDevServer } from 'vite'
 import process from "process";
 import path from "path";
+import stacheTransformer from "stache-inline-transformer";
+import whichModules from "stache-inline-transformer/dist/transformer/modules";
 
 export interface Options {
   isProduction?: boolean
@@ -13,13 +15,12 @@ export interface ResolvedOptions extends Options {
   devServer?: ViteDevServer
 }
 
-const stachePlugin = function (rawOptions: Options = {}): Plugin {
+export const stachePlugin = function (rawOptions: Options = {}): Plugin {
   let options: ResolvedOptions = {
     isProduction: process.env.NODE_ENV === 'production',
     ...rawOptions,
     root: process.cwd()
   }
-
   return {
     name: 'vite:stache',
     configResolved(config: ResolvedOptions) {
@@ -30,11 +31,11 @@ const stachePlugin = function (rawOptions: Options = {}): Plugin {
       }
     },
     transform(code: string, id: string) {
-      const [filename, ] = id.split('?', 2)
+      const [filename] = id.split('?', 2)
+      code = code.trim()
+      if (filename.endsWith('.stache') && !code.startsWith('import')) {
 
-      if (filename.endsWith('.stache')) {
-
-        const ast = parse(id, code.trim());
+        const ast = parse(id, code);
         const intermediate = JSON.stringify(ast.intermediate);
 
         const tagImportMap: string[] = [];
@@ -58,19 +59,28 @@ const stachePlugin = function (rawOptions: Options = {}): Plugin {
         const dynamicImportMap: string[] = ast.dynamicImports || [];
 
         // language=JavaScript
-        var body = `
+        const body = `
           import stache from 'can-stache';
           import Scope from 'can-view-scope';
           import 'can-view-import';
           import 'can-stache/src/mustache_core';
           import stacheBindings from 'can-stache-bindings';
-          ${dynamicImportMap.length ? `import importer from 'vite-stache-import-module';`: ``}
+
+          ${(Object.keys(dynamicImportMap).length || tagImportMap.length || simpleImports.length) ? `import {staticImporter, dynamicImporter} from 'vite-stache-import-module';`: ``}
 
           ${tagImportMap.map((file, i) => `import * as i_${i} from '${file}';`).join('\n')}
           ${simpleImports.map((file) => `import '${file}';`).join('\n')}
 
+          ${tagImportMap.length || simpleImports.length ? `
+            const staticImportMap = [${[...tagImportMap, ...simpleImports].map((file) => {
+              return `"${file}"`;
+            }).join(",")}];
+            staticImporter(staticImportMap);
+          `: ``}
+
           stache.addBindings(stacheBindings);
           var renderer = stache(${intermediate});
+
           ${dynamicImportMap.length ? `
             const dynamicImportMap = Object.assign({}, ${dynamicImportMap.map((file) => {
               if(!path.extname(file)){
@@ -78,8 +88,9 @@ const stachePlugin = function (rawOptions: Options = {}): Plugin {
               }
               return `import.meta.glob('${file}')`;
             }).join(",")});
-            importer(dynamicImportMap);
+            dynamicImporter(dynamicImportMap);
           `: ``}
+
           export default function (scope, options, nodeList) {
             if (!(scope instanceof Scope)) {
               scope = new Scope(scope);
@@ -113,7 +124,7 @@ const stachePlugin = function (rawOptions: Options = {}): Plugin {
   }
 }
 
-const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
+export const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
   let options: ResolvedOptions = {
     isProduction: process.env.NODE_ENV === 'production',
     ...rawOptions,
@@ -140,16 +151,18 @@ const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
         // language=JavaScript
         return `
           import {flushLoader, addLoader} from 'can-import-module';
-          import viewCallbacks from 'can-view-callbacks';
 
           flushLoader();
 
-          const tag = viewCallbacks.tag;
+          export function staticImporter(staticImportMap){
+            addLoader((moduleName) => {
+              if (staticImportMap.indexOf(moduleName) !== -1) {
+                return Promise.resolve();
+              }
+            });
+          }
 
-          // noop static import since we handled it in the vite:stache plugin
-          tag('can-import', function () {});
-
-          export default function (dynamicImportMap) {
+          export function dynamicImporter(dynamicImportMap) {
             addLoader((moduleName) => {
               if (!(moduleName.match(/[^\\\\\\\/]\\.([^.\\\\\\\/]+)$/) || [null]).pop()) {
                 moduleName += '.js';
@@ -158,17 +171,37 @@ const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
                 return dynamicImportMap[moduleName]()
               }
             });
-          };`
+          }`
       }
       return null;
     }
   };
 }
 
+export const stacheInlinePlugin = function (): Plugin {
+  return {
+    name: 'vite:stache-inline',
+
+    transform(code: string, id: string) {
+      const [filename] = id.split('?', 2)
+
+      if (filename.endsWith('.js') && /node_modules/.exec(id) === null) {
+        if (whichModules(code).length > 0) {
+          const newCode = stacheTransformer(code);
+          return {
+            code: newCode,
+            map: {mappings: ''}
+          };
+        }
+      }
+    }
+  }
+}
 
 export default function(){
   return [
     stacheImportPlugin(),
-    stachePlugin()
+    stachePlugin(),
+    stacheInlinePlugin()
   ]
 }

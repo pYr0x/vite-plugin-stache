@@ -1,2 +1,10 @@
-src
-tsconfig.json
+.editorconfig
+.gitignore
+.nvmrc
+node_modules
+.idea
+.npmignore
+.github/
+examples/
+__test__/
+src/
