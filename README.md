@@ -5,6 +5,7 @@
 ![](https://img.shields.io/node/v/vite-plugin-stache?style=flat-square)
 ![](https://img.shields.io/npm/dependency-version/vite-plugin-stache/peer/vitejs?style=flat-square)
 
+> vite-plugin-stache requires CanJS >= 5.x
 
 ## Install
 
@@ -24,30 +25,28 @@ pnpm add -D vite-plugin-stache
 Use the plugin in your Vite config (`vite.config.ts`)
 ### All-in-one
 ```JavaScript
-import stachePlugin from 'vite-plugin-stache'
+import stachePlugins from 'vite-plugin-stache'
 
 export default {
     plugins: [
-      [...stachePlugin()]
+      ...stachePlugins()
     ]
 }
 ```
 
-### Separate Plugins
+### Plugins
 The Vite-Stache plugin consists of several plugins.
 - Stache-Loader: Loads a .stache template file and converts it into a javascript module with the stache-ast for the template part.
-- Stache-Dynamic-Import: Within the .stache file you can import other files like (https://canjs.com/doc/can-view-import.html). This plugin handle the dynamic import with the ES2020 `import()` function.
-- Stache-Inline-Converter: Searching for a stache template string within javascript files and converts it into an AST.
+- Stache-Import: Within the .stache file you can import other files like (https://canjs.com/doc/can-view-import.html). This plugin handles static and dynamic import (ES2020 `import()`).
+- Stache-Inline-Converter _(optional)_: Searching for a stache template string within javascript files and converts it into an AST.
 
 
 ```JavaScript
-import {stachePlugin, stacheImportPlugin, stacheInlinePlugin} from 'vite-plugin-stache'
+import stachePlugins from 'vite-plugin-stache'
 
 export default {
     plugins: [
-      stachePlugin,
-      stacheImportPlugin,
-      stacheInlinePlugin
+      stachePlugins({inlineTransformation: false})
     ]
 }
 ```

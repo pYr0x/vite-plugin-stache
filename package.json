@@ -4,10 +4,10 @@
   "description": "",
   "type": "commonjs",
   "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "module": "dist/esm/index.mjs",
   "types": "types/index.d.ts",
   "exports": {
-    "import": "./dist/esm/index.js",
+    "import": "./dist/esm/index.mjs",
     "require": "./dist/cjs/index.js"
   },
   "repository": {
@@ -23,11 +23,13 @@
     "format": "",
     "lint": "",
     "prepare": "npm run build",
-    "prepublishOnly": "",
-    "preversion": "",
-    "version": "git add -A src",
-    "postversion": "git push && git push --tags",
-    "test": "vitest run --reporter=dot --coverage"
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "postversion": "cross-var git push --atomic origin master v$npm_package_version",
+    "test": "vitest run --reporter=dot --coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch"
   },
   "author": "Julian Kern",
   "license": "MIT",
@@ -36,33 +38,36 @@
     "stache-inline-transformer": "^0.0.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@types/node": "^17.0.8",
-    "c8": "^7.11.0",
-    "can-import-module": "github:canjs/can-import-module#hook-system",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "@types/node": "^17.0.29",
+    "@vitest/ui": "^0.10.0",
+    "c8": "^7.11.2",
+    "can-import-module": "^1.3.0",
     "can-stache": "^5.1.1",
     "can-stache-bindings": "^5.0.5",
     "can-stache-element": "^1.2.0",
     "can-view-import": "^5.0.1",
     "can-view-scope": "^4.13.7",
-    "eslint": "^8.6.0",
+    "cross-var": "^1.1.0",
+    "eslint": "^8.14.0",
     "jsdom": "^19.0.0",
     "pptr-testing-library": "^0.7.0",
-    "prettier": "^2.5.1",
-    "puppeteer": "^13.0.1",
-    "rollup": "^2.63.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
-    "vite": "^2.7.10",
+    "prettier": "^2.6.2",
+    "puppeteer": "^13.6.0",
+    "rollup": "^2.70.2",
+    "ts-node": "^10.7.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.6",
     "vite-plugin-stache": "link:",
-    "vitest": "0.0.134"
+    "vitest": "^0.10.0"
   },
   "peerDependencies": {
-    "vite": "^2.7.10",
     "can-stache": "^5.1.1",
     "can-stache-bindings": "^5.0.5",
     "can-view-import": "^5.0.1",
-    "can-view-scope": "^4.13.7"
+    "can-view-scope": "^4.13.7",
+    "vite": "^2.7.10"
   }
 }

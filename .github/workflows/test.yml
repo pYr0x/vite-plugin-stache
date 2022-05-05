@@ -1,6 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
+name: Test
 
 # Controls when the workflow will run
 on:
@@ -22,7 +20,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Install pnpm
@@ -31,7 +28,7 @@ jobs:
           version: 6.25.0
 
       - name: Install
-        run: pnpm i
+        run: pnpm install
 
       - name: start Server and run tests
         run: pnpm run test

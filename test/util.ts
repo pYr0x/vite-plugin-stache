@@ -1,6 +1,8 @@
 import {RollupOptions, RollupOutput} from "rollup";
 import {build as viteBuild} from "vite";
-import {default as stache} from '../dist/cjs/index';
+// import {default as stache} from '../dist/cjs/index';
+// import {default as stache} from '../src/index';
+import stachePlugins from '../dist/esm/index';
 import fsSync from "fs";
 import path from "path";
 
@@ -19,7 +21,7 @@ export async function generateBundle(
       polyfillDynamicImport: false,
       rollupOptions: Object.assign({
         input: {
-          main: './index.js',
+          main: path.resolve(__dirname, `../examples/${example}/index.js`),
         },
         output: {
           manualChunks: undefined
@@ -28,7 +30,7 @@ export async function generateBundle(
       write: false
     },
     plugins: [
-      ...stache()
+      ...stachePlugins()
     ]
   });
 }
@@ -47,7 +49,7 @@ export async function writeBundle(
       polyfillDynamicImport: false,
       rollupOptions: Object.assign({
         input: {
-          main: './index.html',
+          main: path.resolve(__dirname, `../examples/${example}/index.html`),
         },
         output: {
           // manualChunks: undefined
@@ -56,7 +58,7 @@ export async function writeBundle(
       write: true
     },
     plugins: [
-      ...stache()
+      ...stachePlugins()
     ]
   });
 }

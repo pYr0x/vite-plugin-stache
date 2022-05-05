@@ -1,32 +1,34 @@
-// @ts-ignore
 import {parse} from "can-stache-ast";
 // const makeSourceMap = require( "./source-map" );
-import { Plugin, ViteDevServer } from 'vite'
+import {Plugin} from 'vite'
 import process from "process";
-import path from "path";
 import stacheTransformer from "stache-inline-transformer";
 import whichModules from "stache-inline-transformer/dist/transformer/modules";
+import {createCodeSnippetForDynamicImports, createCodeSnippetForStaticImports} from "./codeSnippets";
+import {Options, ResolvedOptions} from "../types/plugin";
+import {identifyImports} from "./util";
 
-export interface Options {
-  isProduction?: boolean
-}
-export interface ResolvedOptions extends Options {
-  root: string
-  devServer?: ViteDevServer
-}
 
-export const stachePlugin = function (rawOptions: Options = {}): Plugin {
+function stacheFilePlugin(rawOptions: Options = {}): Plugin {
+  const {
+    include = /\.stache$/,
+    exclude
+  } = rawOptions
+
   let options: ResolvedOptions = {
     isProduction: process.env.NODE_ENV === 'production',
     ...rawOptions,
+    include,
+    exclude,
     root: process.cwd()
   }
   return {
     name: 'vite:stache',
-    configResolved(config: ResolvedOptions) {
+    configResolved(config) {
       options = {
         ...options,
         root: config.root,
+        sourceMap: config.command === 'build' ? !!config.build.sourcemap : true,
         isProduction: config.isProduction
       }
     },
@@ -38,25 +40,10 @@ export const stachePlugin = function (rawOptions: Options = {}): Plugin {
         const ast = parse(id, code);
         const intermediate = JSON.stringify(ast.intermediate);
 
-        const tagImportMap: string[] = [];
-        const simpleImports: string[] = [];
+        const {simpleImports, tagImportMap} = identifyImports( [...new Set(ast.imports)], ast.importDeclarations);
 
-        const staticImports = [...new Set(ast.imports)];
-        staticImports.forEach((file) => {
-          for (let importFile of ast.importDeclarations) {
-            if (importFile && importFile.specifier === file && importFile.attributes instanceof Map) {
-              if(importFile.attributes.size > 1) {
-                tagImportMap.push(importFile.specifier);
-                break;
-              }else if(importFile.attributes.size === 1){
-                simpleImports.push(importFile.specifier);
-                break;
-              }
-            }
-          }
-        });
-
-        const dynamicImportMap: string[] = ast.dynamicImports || [];
+        const dynamicImports = ast.dynamicImports || [];
+        // console.log(ast);
 
         // language=JavaScript
         const body = `
@@ -66,30 +53,16 @@ export const stachePlugin = function (rawOptions: Options = {}): Plugin {
           import 'can-stache/src/mustache_core';
           import stacheBindings from 'can-stache-bindings';
 
-          ${(Object.keys(dynamicImportMap).length || tagImportMap.length || simpleImports.length) ? `import {staticImporter, dynamicImporter} from 'vite-stache-import-module';`: ``}
-
+          ${(Object.keys(dynamicImports).length || tagImportMap.length || simpleImports.length) ? `import {staticImporter, dynamicImporter} from 'vite-stache-import-module';`: ``}
           ${tagImportMap.map((file, i) => `import * as i_${i} from '${file}';`).join('\n')}
           ${simpleImports.map((file) => `import '${file}';`).join('\n')}
 
-          ${tagImportMap.length || simpleImports.length ? `
-            const staticImportMap = [${[...tagImportMap, ...simpleImports].map((file) => {
-              return `"${file}"`;
-            }).join(",")}];
-            staticImporter(staticImportMap);
-          `: ``}
+          ${(tagImportMap.length || simpleImports.length) && createCodeSnippetForStaticImports([...tagImportMap, ...simpleImports])}
 
           stache.addBindings(stacheBindings);
           var renderer = stache(${intermediate});
 
-          ${dynamicImportMap.length ? `
-            const dynamicImportMap = Object.assign({}, ${dynamicImportMap.map((file) => {
-              if(!path.extname(file)){
-                file += '.js';
-              }
-              return `import.meta.glob('${file}')`;
-            }).join(",")});
-            dynamicImporter(dynamicImportMap);
-          `: ``}
+          ${dynamicImports.length && createCodeSnippetForDynamicImports(dynamicImports)}
 
           export default function (scope, options, nodeList) {
             if (!(scope instanceof Scope)) {
@@ -124,7 +97,7 @@ export const stachePlugin = function (rawOptions: Options = {}): Plugin {
   }
 }
 
-export const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
+function stacheImportPlugin(rawOptions: Options = {}): Plugin {
   let options: ResolvedOptions = {
     isProduction: process.env.NODE_ENV === 'production',
     ...rawOptions,
@@ -132,11 +105,12 @@ export const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
   }
 
   return {
-    name: 'vite:stache-import-module', // this name will show up in warnings and errors
-    configResolved(config: ResolvedOptions) {
+    name: 'vite:stache-import-module',
+    configResolved(config) {
       options = {
         ...options,
         root: config.root,
+        sourceMap: config.command === 'build' ? !!config.build.sourcemap : true,
         isProduction: config.isProduction
       }
     },
@@ -178,10 +152,22 @@ export const stacheImportPlugin = function (rawOptions: Options = {}): Plugin {
   };
 }
 
-export const stacheInlinePlugin = function (): Plugin {
+function stacheInlinePlugin(rawOptions: Options = {}): Plugin {
+  let options: ResolvedOptions = {
+    isProduction: process.env.NODE_ENV === 'production',
+    ...rawOptions,
+    root: process.cwd()
+  }
   return {
     name: 'vite:stache-inline',
-
+    configResolved(config) {
+      options = {
+        ...options,
+        root: config.root,
+        sourceMap: config.command === 'build' ? !!config.build.sourcemap : true,
+        isProduction: config.isProduction
+      }
+    },
     transform(code: string, id: string) {
       const [filename] = id.split('?', 2)
 
@@ -194,14 +180,25 @@ export const stacheInlinePlugin = function (): Plugin {
           };
         }
       }
+      return null;
     }
   }
 }
 
-export default function(){
-  return [
-    stacheImportPlugin(),
-    stachePlugin(),
-    stacheInlinePlugin()
-  ]
+export default function stachePlugin(rawOptions: Options = {}): Plugin[]{
+  const {
+    inlineTransformation = true,
+  } = rawOptions
+  const plugins: Plugin[] = [
+    stacheFilePlugin(rawOptions),
+    stacheImportPlugin(rawOptions)
+  ];
+
+  if(inlineTransformation){
+    plugins.push(stacheInlinePlugin(rawOptions))
+  }
+  return plugins;
 }
+// // overwrite for cjs require('...')() usage
+// module.exports = stachePlugin
+// stachePlugin['default'] = stachePlugin

@@ -1,0 +1,11 @@
+// Vitest Snapshot v1
+
+exports[`stache file > create a code snippet for static imported files 1`] = `
+"const dynamicImportMap = Object.assign({}, import.meta.glob('./foo.js'));
+            dynamicImporter(dynamicImportMap);"
+`;
+
+exports[`stache file > create a code snippet for static imported files 2`] = `
+"const staticImportMap = [\\"./foo\\"];
+            staticImporter(staticImportMap);"
+`;

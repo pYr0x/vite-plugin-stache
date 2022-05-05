@@ -6,5 +6,5 @@ node_modules
 .npmignore
 .github/
 examples/
-__test__/
+test/
 src/
