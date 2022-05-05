@@ -3,7 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 
 import pkg from './package.json';
 
-const external = ['path', 'fs', 'typescript', ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)];
+const external = ['process', 'path', 'fs', 'typescript', ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)];
 
 export default {
   input: 'src/index.ts',
