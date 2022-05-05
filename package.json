@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-stache",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "",
   "type": "commonjs",
   "main": "dist/cjs/index.js",
