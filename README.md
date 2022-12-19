@@ -1,9 +1,9 @@
 # vite-plugin-stache
 
-![](https://img.shields.io/github/workflow/status/pYr0x/vite-plugin-stache/CI?style=flat-square)
+![](https://img.shields.io/github/actions/workflow/status/pYr0x/vite-plugin-stache/test.yml?branch=master&style=flat-square)
 ![](https://img.shields.io/npm/v/vite-plugin-stache?style=flat-square)
 ![](https://img.shields.io/node/v/vite-plugin-stache?style=flat-square)
-![](https://img.shields.io/npm/dependency-version/vite-plugin-stache/peer/vitejs?style=flat-square)
+![](https://img.shields.io/npm/dependency-version/vite-plugin-stache/peer/vite?style=flat-square)
 
 > vite-plugin-stache requires CanJS >= 6.x
 
