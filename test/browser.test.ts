@@ -25,7 +25,7 @@ describe('dynamic import', async () => {
   beforeAll(async () => {
     await writeBundle('dynamic-import');
     // delete a file so we can see the loading error
-    deleteMatchedFiles(path.resolve(__dirname, '../examples/dynamic-import/dist/assets/'), /bar\..*/);
+    deleteMatchedFiles(path.resolve(__dirname, '../examples/dynamic-import/dist/assets/'), /bar.*/);
 
     server = await createServer('dynamic-import');
     browser = await puppeteer.launch()

@@ -5,7 +5,7 @@
 ![](https://img.shields.io/node/v/vite-plugin-stache?style=flat-square)
 ![](https://img.shields.io/npm/dependency-version/vite-plugin-stache/peer/vitejs?style=flat-square)
 
-> vite-plugin-stache requires CanJS >= 5.x
+> vite-plugin-stache requires CanJS >= 6.x
 
 ## Install
 

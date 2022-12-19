@@ -30,25 +30,6 @@ describe.concurrent('Plugin usage', () => {
     expect(plugins[plugins.length - 1].name).not.to.equal('vite:stache-inline');
   });
 })
-// describe.concurrent('Options pass through all plugins', () => {
-//   it('should pass options to all plugins', async() => {
-//     const resolvedConfig = await resolveConfig({plugins: [stachePlugin({isProduction: true})]}, 'serve');
-//     console.log(resolvedConfig.isProduction)
-//
-//       // .should.have.property('plugins')
-//       // .which.should.have.length(3)
-//       // .and.should.have.property('0')
-//       // .which.should.have.property('options')
-//       // .which.should.have.property('inlineTransformation')
-//       // .which.should.equal(false);
-//     // const [filePlugin, importPlugin, inlinePlugin] = stachePlugin({
-//     //   isProduction: true
-//     // });
-//     // expect(filePlugin.config())
-//     //   .to.have.property('isProduction')
-//     //   .that.is.true;
-//   });
-// })
 describe.concurrent('stache file', () => {
 
   it('should skip tranforming if file is not a stache file', async() => {

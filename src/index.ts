@@ -24,6 +24,7 @@ function stacheFilePlugin(rawOptions: Options = {}): Plugin {
   }
   return {
     name: 'vite:stache',
+    // apply: 'build',
     configResolved(config) {
       options = {
         ...options,
@@ -43,7 +44,6 @@ function stacheFilePlugin(rawOptions: Options = {}): Plugin {
         const {simpleImports, tagImportMap} = identifyImports( [...new Set(ast.imports)], ast.importDeclarations);
 
         const dynamicImports = ast.dynamicImports || [];
-        // console.log(ast);
 
         // language=JavaScript
         const body = `
